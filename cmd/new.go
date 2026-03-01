@@ -155,7 +155,7 @@ func main() {
 
 	nextSteps = `To get started with your project, run:
 	cd %s
-	go mod init
+	go mod tidy
 	go run server.go
 	Browse to http://localhost:1323 and you should see Hello, World! on the page.
 	Visit echo's docs here: https://echo.labstack.com/`
