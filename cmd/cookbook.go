@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"path/filepath"
 
 	"github.com/cjodo/echo-cli/internal"
@@ -53,21 +50,13 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 }
 
 func cookbookListRunE(cmd *cobra.Command, args []string) error {
-	resp, err := http.Get(apiCookbookRepo)
+	contents, err := internal.ListAllRepoContents(apiCookbookRepo)
 	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
-	var contents []GithubContent
-	if err := json.Unmarshal(body, &contents); err != nil {
 		return err
 	}
 
 	fmt.Println("Available recipies:")
-	for _, c := range contents {
+	for _, c := range *contents {
 		if c.Type == "dir" {
 			fmt.Println(" -", c.Name)
 		}

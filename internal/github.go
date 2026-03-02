@@ -50,3 +50,19 @@ func DownloadFromRepo(apiUrl, outDir string) error {
 
 }
 	
+func ListAllRepoContents(apiUrl string) (*[]GithubContent, error) {
+	resp, err := http.Get(apiUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	var contents []GithubContent
+	if err := json.Unmarshal(body, &contents); err != nil {
+		return nil, err
+	}
+
+	return &contents, nil
+}
