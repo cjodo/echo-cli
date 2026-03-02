@@ -12,7 +12,7 @@ func rootRunE(cmd *cobra.Command, _ []string) error {
 }
 
 var rootCmd = &cobra.Command{
-	Use: "echo",
+	Use: "echo-cli",
 	Long: "",
 	RunE: rootRunE,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error { return nil },
