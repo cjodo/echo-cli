@@ -74,6 +74,8 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 		}
 	}
 	fmt.Printf("Recipe '%s' pulled into %s\n", recipe, outDir)
+	fmt.Println("\n\n\n ---Next Steps---\n")
+	fmt.Printf("cd %s && go mod tidy\n", recipe)
 	return nil
 }
 
