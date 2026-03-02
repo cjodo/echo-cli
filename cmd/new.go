@@ -28,7 +28,7 @@ var (
 )
 
 func init() {
-	newCmd.Flags().StringVarP(&templateFlag, "template", "t", "hello-world", templateUsage)
+	newCmd.Flags().StringVarP(&templateFlag, "template", "t", "hello-world", "")
 }
 
 func newRunE(cmd *cobra.Command, args []string) (err error) {
@@ -153,34 +153,7 @@ func runCmd(cmd *exec.Cmd) (err error) {
 }
 
 var (
-	templateUsage = `
-	generate one of the templates found in https://echo.labstack.com/docs/cookbook/.
-
-	Template Options:
-
-	auto-tls
-	cors
-	crud
-	embed-resources
-	file-download
-	file-upload
-	graceful-shutdown
-	hello-world
-	http-server-push
-	http-server
-	jsonp
-	jwt
-	load-balancing
-	middleware
-	reverse-proxy
-	sse
-	streaming-response
-	subdomain
-	timeout
-	websocket
-	`
 	starterTemplate = `package main
-
 	import (
 	"context"
 	"net/http"
