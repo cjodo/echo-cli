@@ -11,7 +11,7 @@ var http2ServerMain string
 type Http2Server struct{}
 
 func (t Http2Server) Name() string {
-	return "hello-world"
+	return "http2-server"
 }
 
 func (t Http2Server) Generate(projectPath, modName string) error {

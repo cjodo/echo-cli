@@ -11,7 +11,7 @@ var jwtMain string
 type JWT struct{}
 
 func (t JWT) Name() string {
-	return "hello-world"
+	return "jwt"
 }
 
 func (t JWT) Generate(projectPath, modName string) error {
