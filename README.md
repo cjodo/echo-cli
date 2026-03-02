@@ -9,19 +9,19 @@ A CLI tool for bootstrapping Echo web server projects. Not affiliated with the o
 ```bash
 git clone https://github.com/cjodo/echo-cli.git
 cd echo-cli
-go build -o echo ./echo/
+go build -o echo-cli ./echo/.
 ```
 
 Or install globally:
 
 ```bash
-go install ./echo/
+go install ./echo/.
 ```
 
 ### Verify Installation
 
 ```bash
-echo --help
+echo-cli --help
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ echo --help
 ### Create a New Project
 
 ```bash
-echo new <project-name> [module-name]
+echo-cli new <project-name> [module-name]
 ```
 
 Creates a new Echo project in a directory with the specified name.
@@ -41,7 +41,7 @@ Arguments:
 ### Use a Template
 
 ```bash
-echo new my-api -t <template>
+echo-cli new my-api -t <template>
 ```
 
 Available templates:
@@ -74,24 +74,24 @@ Available templates:
 Create a default hello-world project:
 
 ```bash
-echo new my-project
+echo-cli new my-project
 ```
 
 Create a project with JWT auth:
 
 ```bash
-echo new api -t jwt
+echo-cli new api -t jwt
 ```
 
 Create a project with a custom module name:
 
 ```bash
-echo new my-project github.com/myuser/my-project
+echo-cli new my-project github.com/myuser/my-project
 ```
 
 ## Project Structure
 
-After running `echo new my-project`, the generated project will have:
+After running `echo-cli new my-project`, the generated project will have:
 
 ```
 my-project/
