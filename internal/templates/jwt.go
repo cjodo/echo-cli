@@ -1,28 +1,10 @@
 package templates
 
-import (
-	_ "embed"
-	"path/filepath"
-)
+import _ "embed"
 
 //go:embed files/jwt/server.go
-var jwtMain string
-
-type JWT struct{}
-
-func (t JWT) Name() string {
-	return "jwt"
-}
-
-func (t JWT) Generate(projectPath, modName string) error {
-	mainFile := filepath.Join(projectPath, "server.go")
-	return generateSingle(mainFile, jwtMain)
-}
-
-func (t JWT) PrintNextSteps() {
-
-}
+var jwtContent string
 
 func init() {
-	Register(JWT{})
+	Register(NewSingleFileGenerator("jwt", jwtContent, ""))
 }

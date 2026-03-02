@@ -1,28 +1,10 @@
 package templates
 
-import (
-	_ "embed"
-	"path/filepath"
-)
+import _ "embed"
 
 //go:embed files/websocket/server.go
-var websocketMain string
-
-type Websocket struct{}
-
-func (t Websocket) Name() string {
-	return "websocket"
-}
-
-func (t Websocket) Generate(projectPath, modName string) error {
-	mainFile := filepath.Join(projectPath, "server.go")
-	return generateSingle(mainFile, websocketMain)
-}
-
-func (t Websocket) PrintNextSteps() {
-
-}
+var websocketContent string
 
 func init() {
-	Register(Websocket{})
+	Register(NewSingleFileGenerator("websocket", websocketContent, ""))
 }

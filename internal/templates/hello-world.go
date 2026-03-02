@@ -1,28 +1,10 @@
 package templates
 
-import (
-	_ "embed"
-	"path/filepath"
-)
+import _ "embed"
 
 //go:embed files/hello-world/server.go
-var helloWorldMain string
-
-type HelloWorld struct{}
-
-func (t HelloWorld) Name() string {
-	return "hello-world"
-}
-
-func (t HelloWorld) Generate(projectPath, modName string) error {
-	mainFile := filepath.Join(projectPath, "server.go")
-	return generateSingle(mainFile, helloWorldMain)
-}
-
-func (t HelloWorld) PrintNextSteps() {
-
-}
+var helloWorldContent string
 
 func init() {
-	Register(HelloWorld{})
+	Register(NewSingleFileGenerator("hello-world", helloWorldContent, ""))
 }
