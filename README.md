@@ -9,19 +9,19 @@ A CLI tool for bootstrapping Echo web server projects. Not affiliated with the o
 ```bash
 git clone https://github.com/cjodo/echo-cli.git
 cd echo-cli
-go build -o echo-cli ./cmd/
+go build -o echo ./echo/
 ```
 
 Or install globally:
 
 ```bash
-go install ./cmd/
+go install ./echo/
 ```
 
 ### Verify Installation
 
 ```bash
-echo-cli --help
+echo --help
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ echo-cli --help
 ### Create a New Project
 
 ```bash
-echo-cli new <project-name> [module-name]
+echo new <project-name> [module-name]
 ```
 
 Creates a new Echo project in a directory with the specified name.
@@ -41,7 +41,7 @@ Arguments:
 ### Use a Template
 
 ```bash
-echo-cli new my-api -t <template>
+echo new my-api -t <template>
 ```
 
 Available templates:
@@ -74,42 +74,28 @@ Available templates:
 Create a default hello-world project:
 
 ```bash
-echo-cli new my-project
+echo new my-project
 ```
 
 Create a project with JWT auth:
 
 ```bash
-echo-cli new api -t jwt
+echo new api -t jwt
 ```
 
 Create a project with a custom module name:
 
 ```bash
-echo-cli new my-project github.com/myuser/my-project
+echo new my-project github.com/myuser/my-project
 ```
 
 ## Project Structure
 
-After running `echo-cli new my-project`, the generated project will have:
+After running `echo new my-project`, the generated project will have:
 
 ```
 my-project/
 ├── go.mod
 ├── server.go
 └── [additional template files]
-```
-
-## Development
-
-Build the CLI:
-
-```bash
-go build -o echo-cli ./cmd/
-```
-
-Run tests:
-
-```bash
-go test ./...
 ```
