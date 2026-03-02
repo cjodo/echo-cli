@@ -12,14 +12,14 @@ var http2ServerPush embed.FS
 type Http2ServerPush struct{}
 
 func (t Http2ServerPush) Name() string {
-	return "graceful-shutdown"
+	return "http2-server-push"
 }
 
 func (t Http2ServerPush) Generate(projectPath, modName string) error {
 	return generateFromDir(projectPath, &http2ServerPush, "files/http2-server-push")
 }
 
-func(t Http2ServerPush) PrintNextSteps() {
+func (t Http2ServerPush) PrintNextSteps() {
 	fmt.Println("Implement next steps: http2-server-push")
 }
 

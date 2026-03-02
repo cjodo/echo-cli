@@ -21,8 +21,8 @@ func (t GracefulShutdown) Generate(projectPath, modName string) error {
 	return os.WriteFile(serverFile, []byte(gracefulShutdownMain), 0644)
 }
 
-func(t GracefulShutdown) PrintNextSteps() {
-	fmt.Println("Implement next steps: auto-tls")
+func (t GracefulShutdown) PrintNextSteps() {
+	fmt.Println("Implement next steps: graceful-shutdown")
 }
 
 func init() {

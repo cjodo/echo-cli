@@ -21,7 +21,7 @@ func (t AutoTLS) Generate(projectPath, modName string) error {
 	return os.WriteFile(serverFile, []byte(autoTLSMain), 0644)
 }
 
-func(t AutoTLS) PrintNextSteps() {
+func (t AutoTLS) PrintNextSteps() {
 	fmt.Println("Implement next steps: auto-tls")
 }
 

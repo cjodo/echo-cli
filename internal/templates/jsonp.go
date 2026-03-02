@@ -19,7 +19,7 @@ func (t JsonP) Generate(projectPath, modName string) error {
 	return generateFromDir(projectPath, &jsonPDir, "files/jsonp")
 }
 
-func(t JsonP) PrintNextSteps() {
+func (t JsonP) PrintNextSteps() {
 	fmt.Println("Implement next steps: jsonp")
 }
 
