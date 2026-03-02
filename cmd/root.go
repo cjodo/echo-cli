@@ -21,7 +21,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand( newCmd )
+	rootCmd.AddCommand( newCmd, cookbookCmd )
 }
 
 func Execute() {
