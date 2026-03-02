@@ -2,11 +2,69 @@ package templates
 
 import (
 	"embed"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
+
+type SingleFileGenerator struct {
+	name           string
+	content        string
+	printNextSteps string
+}
+
+func (s SingleFileGenerator) Name() string {
+	return s.name
+}
+
+func (s SingleFileGenerator) Generate(projectPath, modName string) error {
+	mainFile := filepath.Join(projectPath, "server.go")
+	return os.WriteFile(mainFile, []byte(s.content), 0644)
+}
+
+func (s SingleFileGenerator) PrintNextSteps() {
+	if s.printNextSteps != "" {
+		fmt.Println(s.printNextSteps)
+	}
+}
+
+func NewSingleFileGenerator(name, content, printNextSteps string) SingleFileGenerator {
+	return SingleFileGenerator{
+		name:           name,
+		content:        content,
+		printNextSteps: printNextSteps,
+	}
+}
+
+type MultiFileGenerator struct {
+	name           string
+	files          embed.FS
+	printNextSteps string
+}
+
+func (m MultiFileGenerator) Name() string {
+	return m.name
+}
+
+func (m MultiFileGenerator) Generate(projectPath, modName string) error {
+	return generateFromDir(projectPath, &m.files, fmt.Sprintf("files/%s", m.name))
+}
+
+func (m MultiFileGenerator) PrintNextSteps() {
+	if m.printNextSteps != "" {
+		fmt.Println(m.printNextSteps)
+	}
+}
+
+func NewMultiFileGenerator(name string, files embed.FS, printNextSteps string) MultiFileGenerator {
+	return MultiFileGenerator{
+		name:           name,
+		files:          files,
+		printNextSteps: printNextSteps,
+	}
+}
 
 func generateFromDir(projectPathRoot string, efs *embed.FS, root string) error {
 	return fs.WalkDir(*efs, root, func(path string, d fs.DirEntry, err error) error {
