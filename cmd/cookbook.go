@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 
+	"github.com/cjodo/echo-cli/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ type GithubContent struct {
 	DownloadURL string `json:"download_url"`
 }
 
-const repoUrl = "https://api.github.com/repos/labstack/echox/contents/cookbook"
+const apiCookbookRepo = "https://api.github.com/repos/labstack/echox/contents/cookbook"
 
 var cookbookCmd =  &cobra.Command{
 	Use: "cookbook",
@@ -41,38 +41,11 @@ var cookbookGetCmd = &cobra.Command{
 
 func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 	recipe := args[0]
-	url := fmt.Sprintf(repoUrl+"/%s", recipe)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
-	var files []GithubContent
-	if err := json.Unmarshal(body, &files); err != nil {
-		return err
-	}
-
+	url := fmt.Sprintf(apiCookbookRepo+"/%s", recipe)
 	outDir := filepath.Join(".", recipe)
-	os.MkdirAll(outDir, 0755)
 
-	for _, f := range files {
-		if f.Type == "file" && f.DownloadURL != "" {
-			fileResp, err := http.Get(f.DownloadURL)
-			if err != nil {
-				return err
-			}
-			defer fileResp.Body.Close()
+	internal.DownloadFromRepo(url, outDir)
 
-			data, _ := io.ReadAll(fileResp.Body)
-			outPath := filepath.Join(outDir, f.Name)
-			os.WriteFile(outPath, data, 0644)
-			fmt.Println("Downloaded", f.Name)
-		}
-	}
 	fmt.Printf("Recipe '%s' pulled into %s\n", recipe, outDir)
 	fmt.Println("\n\n\n ---Next Steps---\n")
 	fmt.Printf("cd %s && go mod tidy\n", recipe)
@@ -80,7 +53,7 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 }
 
 func cookbookListRunE(cmd *cobra.Command, args []string) error {
-	resp, err := http.Get(repoUrl)
+	resp, err := http.Get(apiCookbookRepo)
 	if err != nil {
 		return err
 	}
