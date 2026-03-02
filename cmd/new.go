@@ -8,23 +8,30 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-)
 
+	"github.com/cjodo/echo-cli/internal/templates"
+)
 
 var (
 	// sets Unix permissions to rwxr-x---. The owner has full read, write, and execute permissions
 	modeRWE = os.FileMode(0750)
 
 	newCmd = &cobra.Command{
-		Use: "new <project-name>",
+		Use:     "new <project-name>",
 		Aliases: []string{"n"},
-		Short: "Generate a new echo project",
-		Args: cobra.MinimumNArgs(1),
-		RunE: newRunE,
+		Short:   "Generate a new echo project",
+		Args:    cobra.MinimumNArgs(1),
+		RunE:    newRunE,
 	}
+
+	templateFlag string
 )
 
-func newRunE(cmd *cobra.Command, args [] string) (err error) {
+func init() {
+	newCmd.Flags().StringVarP(&templateFlag, "template", "t", "hello-world", templateUsage)
+}
+
+func newRunE(cmd *cobra.Command, args []string) (err error) {
 
 	projectName := args[0]
 	modName := projectName
@@ -50,14 +57,11 @@ func newRunE(cmd *cobra.Command, args [] string) (err error) {
 		}
 	}()
 
-	defer func() {
-		// success message
-		if err == nil {
-			cmd.Printf(nextSteps, projectName)
-		}
-	}()
+	if templateFlag == "" {
+		templateFlag = "hello-world"
+	}
 
-	return create(projectPath, modName)
+	return runNew(projectPath, modName, templateFlag)
 }
 
 func createProjectFromPath(path string) error {
@@ -72,12 +76,30 @@ func createProjectFromPath(path string) error {
 	return nil
 }
 
-func create(projectPath, modName string) error {
-	if err := createFile(fmt.Sprintf("%s%cserver.go", projectPath, os.PathSeparator), template); err != nil {
+func runNew(projectPath, modName, template string) error {
+	if err := os.MkdirAll(projectPath, modeRWE); err != nil {
 		return err
 	}
 
-	return runCmd(exec.Command("go", "mod", "init", modName))
+	if err := runCmd(exec.Command("go", "mod", "init", modName)); err != nil {
+		return err
+	}
+
+	return createFromTemplate(projectPath, modName, template)
+}
+
+func createFromTemplate(projectPath, modName, template string) error {
+	g, ok := templates.Get(template)
+	if !ok {
+		return fmt.Errorf("unknown template: %s ", template)
+	}
+
+	if err := g.Generate(projectPath, modName); err != nil {
+		return err
+	}
+
+	g.PrintNextSteps()
+	return nil
 }
 
 func createFile(filePath, content string) error {
@@ -130,33 +152,60 @@ func runCmd(cmd *exec.Cmd) (err error) {
 	return err
 }
 
-var ( 
-	template = `package main
+var (
+	templateUsage = `
+	generate one of the templates found in https://echo.labstack.com/docs/cookbook/.
 
-import (
+	Template Options:
+
+	auto-tls
+	cors
+	crud
+	embed-resources
+	file-download
+	file-upload
+	graceful-shutdown
+	hello-world
+	http-server-push
+	http-server
+	jsonp
+	jwt
+	load-balancing
+	middleware
+	reverse-proxy
+	sse
+	streaming-response
+	subdomain
+	timeout
+	websocket
+	`
+	starterTemplate = `package main
+
+	import (
+	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-)
+	)
 
-func main() {
+	func main() {
+	// Echo instance
 	e := echo.New()
-	e.Use(middleware.RequestLogger())
 
+	// Middleware
+	e.Use(middleware.RequestLogger())
+	e.Use(middleware.Recover())
+
+	// Route => handler
 	e.GET("/", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
+	return c.String(http.StatusOK, "Hello, World!\n")
 	})
 
-	if err := e.Start(":1323"); err != nil {
-		e.Logger.Error("failed to start server", "error", err)
+	// Start server
+	sc := echo.StartConfig{Address: ":1323"}
+	if err := sc.Start(context.Background(), e); err != nil {
+	e.Logger.Error("failed to start server", "error", err)
 	}
-}`
-
-	nextSteps = `To get started with your project, run:
-	cd %s
-	go mod tidy
-	go run server.go
-	Browse to http://localhost:1323 and you should see Hello, World! on the page.
-	Visit echo's docs here: https://echo.labstack.com/`
+	}`
 )
