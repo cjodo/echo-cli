@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/cjodo/echo-cli/internal"
@@ -68,9 +69,21 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := os.Chdir(outDir); err != nil {
+		return err
+	}
+
+	if err := exec.Command("go", "mod", "init", recipe).Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: go mod init failed: %v\n", err)
+	}
+
+	if err := os.Chdir(".."); err != nil {
+		return err
+	}
+
 	fmt.Printf("Recipe '%s' pulled into %s\n", recipe, outDir)
-	fmt.Println("\n\n\n ---Next Steps---\n")
-	fmt.Printf("cd %s && go mod tidy\n", recipe)
+	fmt.Println("---Next Steps---")
+	fmt.Printf("cd %s && go mod tidy\n\n", recipe)
 	return nil
 }
 
