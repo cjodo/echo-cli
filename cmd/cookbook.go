@@ -23,6 +23,7 @@ func init() {
 	}
 
 	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
+	cookbookListCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
 }
 
 type GithubContent struct {
