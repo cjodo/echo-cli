@@ -33,3 +33,5 @@ vendor
 # air build files
 tmp/
 
+# Added by goreleaser init:
+dist/
