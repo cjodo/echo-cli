@@ -4,12 +4,18 @@ A CLI tool for bootstrapping Echo web server projects. Not affiliated with the o
 
 ## Installation
 
+### Go Install
+
+```bash
+go install github.com/cjodo/echo-cli/cmd/echo-cli
+```
+
 ### From Source
 
 ```bash
 git clone https://github.com/cjodo/echo-cli.git
 cd echo-cli
-go build -o echo-cli ./echo-cli/.
+go build -o echo-cli ./cmd/echo-cli.
 ```
 
 ### Verify Installation
