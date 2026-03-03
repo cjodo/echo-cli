@@ -2,11 +2,26 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/cjodo/echo-cli/internal"
+	"github.com/cjodo/echo-cli/internal/cache"
 	"github.com/spf13/cobra"
 )
+
+var (
+	cookbookCache *cache.Cache
+	refreshCache  bool
+)
+
+func init() {
+	var err error
+	cookbookCache, err = cache.New()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cache init failed: %v\n", err)
+	}
+}
 
 type GithubContent struct {
 	Name        string `json:"name"`
@@ -17,23 +32,28 @@ type GithubContent struct {
 
 const apiCookbookRepo = "https://api.github.com/repos/labstack/echox/contents/cookbook"
 
-var cookbookCmd =  &cobra.Command{
-	Use: "cookbook",
+var cookbookCmd = &cobra.Command{
+	Use:   "cookbook",
 	Short: "Generate a new template from the cookbook",
-	Long: "List and pull recipes from the official LabStack EchoX cookbook repo",
+	Long:  "List and pull recipes from the official LabStack EchoX cookbook repo",
 }
 
 var cookbookListCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List available cookbook recipies",
-	RunE: cookbookListRunE,
+	RunE:  cookbookListRunE,
 }
 
 var cookbookGetCmd = &cobra.Command{
-	Use: "get <recipe name>",
+	Use:   "get <recipe name>",
 	Short: "Pull a recipe from the official cookbook",
-	Args: cobra.ExactArgs(1),
-	RunE: cookbookGetRunE,
+	Args:  cobra.ExactArgs(1),
+	RunE:  cookbookGetRunE,
+}
+
+func init() {
+	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
+	cookbookCmd.AddCommand(cookbookListCmd, cookbookGetCmd)
 }
 
 func cookbookGetRunE(cmd *cobra.Command, args []string) error {
@@ -41,7 +61,14 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 	url := fmt.Sprintf(apiCookbookRepo+"/%s", recipe)
 	outDir := filepath.Join(".", recipe)
 
-	internal.DownloadFromRepo(url, outDir)
+	c := cookbookCache
+	if refreshCache {
+		c = nil
+	}
+
+	if err := internal.DownloadFromRepoWithCache(url, outDir, c); err != nil {
+		return err
+	}
 
 	fmt.Printf("Recipe '%s' pulled into %s\n", recipe, outDir)
 	fmt.Println("\n\n\n ---Next Steps---\n")
@@ -50,7 +77,12 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 }
 
 func cookbookListRunE(cmd *cobra.Command, args []string) error {
-	contents, err := internal.ListDirsInRepo(apiCookbookRepo)
+	c := cookbookCache
+	if refreshCache {
+		c = nil
+	}
+
+	contents, err := internal.ListDirsInRepoWithCache(apiCookbookRepo, c)
 	if err != nil {
 		return err
 	}
