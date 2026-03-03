@@ -27,11 +27,14 @@ func DownloadFromRepo(apiURL, outDir string) error {
 }
 
 func DownloadFromRepoWithCache(apiURL, outDir string, c *cache.Cache) error {
-	parts := strings.Split(apiURL, "/contents/")
-	if len(parts) != 2 {
+	idx := strings.LastIndex(apiURL, "/contents")
+	if idx == -1 {
 		return fmt.Errorf("invalid GitHub contents API URL: %s", apiURL)
 	}
-	basePath := parts[1]
+	basePath := strings.TrimPrefix(apiURL[idx+len("/contents"):], "/")
+	if basePath == "" {
+		basePath = "."
+	}
 
 	return downloadFromRepoRecursive(apiURL, outDir, basePath, c)
 }
@@ -102,9 +105,16 @@ func downloadFromRepoRecursive(apiURL, outDir, basePath string, c *cache.Cache) 
 			if c != nil {
 				_, _ = c.SetFile(item.DownloadURL, data)
 			}
-			relPath, err := filepath.Rel(basePath, item.Path)
-			if err != nil {
-				return err
+
+			var relPath string
+			if basePath == "." {
+				relPath = item.Path
+			} else {
+				var err error
+				relPath, err = filepath.Rel(basePath, item.Path)
+				if err != nil {
+					return err
+				}
 			}
 
 			outPath := filepath.Join(outDir, relPath)

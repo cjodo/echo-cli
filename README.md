@@ -10,6 +10,7 @@ A CLI tool for bootstrapping Echo web server projects. Not affiliated with the o
 git clone https://github.com/cjodo/echo-cli.git
 cd echo-cli
 go build -o echo-cli ./echo-cli/.
+```
 
 ### Verify Installation
 
@@ -19,76 +20,95 @@ echo-cli --help
 
 ## Usage
 
-### Create a New Project
+### Cookbook
+
+Browse and pull ready-made examples from the official Echo cookbook.
 
 ```bash
-echo-cli new <project-name> [module-name]
+echo-cli cookbook list                    # List available recipes
+echo-cli cookbook get <recipe-name>        # Download a recipe to current directory
 ```
 
-Creates a new Echo project in a directory with the specified name.
+Flags:
+- `--refresh` - Force refresh cache, bypasses cached API responses and downloaded files
 
-Arguments:
-- `project-name` (required): Name of the project directory to create
-- `module-name` (optional): Go module name (defaults to project-name)
-
-### Use a Template
+Examples:
 
 ```bash
-echo-cli new my-api -t <template>
+# List all available cookbook recipes
+echo-cli cookbook list
+
+# Download a recipe (cached after first run)
+echo-cli cookbook get file-download
+
+# Force refresh from GitHub
+echo-cli cookbook get file-download --refresh
+
+# Force refresh recipe list
+echo-cli cookbook list --refresh
 ```
 
-Available templates:
+Available recipes:
+- auto-tls
+- casbin
+- cors
+- crud
+- csrf
+- embed
+- file-download
+- file-upload
+- graceful-shutdown
+- hello-world
+- http2-server-push
+- http2
+- jsonp
+- jwt
+- load-balancing
+- middleware
+- prometheus
+- reverse-proxy
+- sse
+- streaming-response
+- subdomain
+- timeout
+- websocket
 
-- `auto-tls` - Automatic TLS with Let's Encrypt
-- `cors` - CORS middleware configuration
-- `crud` - Basic CRUD API endpoints
-- `embed-resources` - Embedded static assets
-- `file-download` - File download handler
-- `file-upload` - File upload handler
-- `graceful-shutdown` - Graceful server shutdown
-- `hello-world` - Basic Echo server (default)
-- `http2-server` - HTTP/2 server
-- `http2-server-push` - HTTP/2 server push
-- `jsonp` - JSONP response handling
-- `jwt` - JWT authentication
-- `load-balancing` - Load balancing with round-robin
-- `middleware` - Custom middleware example
-- `reverse-proxy` - Reverse proxy setup
-- `streaming-response` - Streaming JSON response
-- `subdomain` - Virtual host subdomain routing
-- `timeout` - Request timeout handling
-- `websocket` - WebSocket support
+### Docs
 
-> [!NOTE]
-> All templates were pulled from the [https://echo.labstack.com/docs/category/cookbook](https://echo.labstack.com/docs/category/cookbook) examples
-
-### Examples
-
-Create a default hello-world project:
+Serve the Echo framework documentation locally for offline access.
 
 ```bash
-echo-cli new my-project
+echo-cli docs              # Serve docs on default port 8080
+echo-cli docs -p 3000      # Serve docs on port 3000
+echo-cli docs --refresh    # Force refresh docs cache
 ```
 
-Create a project with JWT auth:
+Flags:
+- `-p, --port string`   Port to serve docs on (default "8080")
+- `--refresh`           Force refresh cache, bypasses cached docs
+
+Examples:
 
 ```bash
-echo-cli new api -t jwt
+# Serve docs locally
+echo-cli docs
+
+# Serve on custom port
+echo-cli docs -p 8081
+
+# Refresh the docs cache
+echo-cli docs --refresh
 ```
 
-Create a project with a custom module name:
+## Cache
 
-```bash
-echo-cli new my-project github.com/myuser/my-project
-```
+The cookbook and docs commands cache GitHub API responses and downloaded files to speed up subsequent requests.
 
-## Project Structure
+Cache location: `~/.echo-cli/cache/`
 
-After running `echo-cli new my-project`, the generated project will have:
+- `api/` - GitHub API responses (directory listings)
+- `files/` - Downloaded recipe and docs files
 
-```
-my-project/
-├── go.mod
-├── server.go
-└── [additional template files]
-```
+Cache TTL: 24 hours (default)
+
+Use `--refresh` flag to bypass the cache and fetch fresh data from GitHub.
