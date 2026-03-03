@@ -19,7 +19,12 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(cookbookCmd, docsCmd, versionCmd)
+	rootCmd.AddCommand(
+		cookbookCmd,
+		docsCmd,
+		versionCmd,
+		upgradeCmd,
+		)
 }
 
 func Execute() {
