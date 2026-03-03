@@ -21,6 +21,8 @@ func init() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: cache init failed: %v\n", err)
 	}
+
+	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
 }
 
 type GithubContent struct {
@@ -49,11 +51,6 @@ var cookbookGetCmd = &cobra.Command{
 	Short: "Pull a recipe from the official cookbook",
 	Args:  cobra.ExactArgs(1),
 	RunE:  cookbookGetRunE,
-}
-
-func init() {
-	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
-	cookbookCmd.AddCommand(cookbookListCmd, cookbookGetCmd)
 }
 
 func cookbookGetRunE(cmd *cobra.Command, args []string) error {
