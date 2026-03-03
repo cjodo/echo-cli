@@ -12,16 +12,16 @@ func rootRunE(cmd *cobra.Command, _ []string) error {
 }
 
 var rootCmd = &cobra.Command{
-	Use: "echo-cli",
-	Long: "",
-	RunE: rootRunE,
+	Use:               "echo-cli",
+	Long:              "",
+	RunE:              rootRunE,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error { return nil },
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {  },
-	SilenceErrors: true,
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {},
+	SilenceErrors:     true,
 }
 
 func init() {
-	rootCmd.AddCommand( cookbookCmd, docsCmd )
+	rootCmd.AddCommand(cookbookCmd, docsCmd, versionCmd)
 }
 
 func Execute() {
