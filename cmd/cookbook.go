@@ -50,7 +50,7 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 }
 
 func cookbookListRunE(cmd *cobra.Command, args []string) error {
-	contents, err := internal.ListAllRepoContents(apiCookbookRepo)
+	contents, err := internal.ListDirsInRepo(apiCookbookRepo)
 	if err != nil {
 		return err
 	}
