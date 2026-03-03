@@ -8,55 +8,62 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the current cli version",
-	Run:   versionRun,
-}
-
 var (
-	version string
-	unknown = "unknown"
+	// These are overridden by goreleaser via ldflags.
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
-func versionRun(cmd *cobra.Command, args []string) {
-	fmt.Println(getVersion())
+const unknown = "unknown"
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the current CLI version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(fullVersion())
+	},
 }
 
-func getVersion() string {
+// fullVersion returns the formatted version string shown to users.
+func fullVersion() string {
+	v := resolveVersion()
+	if v == unknown {
+		return unknown
+	}
+
+	// If this is a release build (commit injected)
+	if commit != "" && commit != "none" {
+		return fmt.Sprintf("%s (%s, built %s)", v, short(commit), date)
+	}
+
+	return v
+}
+
+// resolveVersion determines the appropriate version string.
+func resolveVersion() string {
+	// If GoReleaser injected a version, prefer it.
+	if version != "" && version != "dev" {
+		return strings.TrimPrefix(version, "v")
+	}
+
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
-		version = unknown
-		return version
+		return "dev"
 	}
 
-	if buildInfo.Main.Version != "" && buildInfo.Main.Version != "(devel)" {
-		version = strings.TrimPrefix(buildInfo.Main.Version, "v")
-		return version
-	}
-
-	// Fallback to VCS info if available
 	for _, setting := range buildInfo.Settings {
-		switch setting.Key {
-		case "vcs.tag":
-			if setting.Value != "" {
-				version = strings.TrimPrefix(setting.Value, "v")
-				return version
-			}
-		case "vcs.revision":
-			if setting.Value != "" && len(setting.Value) >= 7 {
-				version = setting.Value[:7] // short commit hash
-				return version
-			}
-		default:
-			continue
+		if setting.Key == "vcs.revision" && len(setting.Value) >= 7 {
+			return fmt.Sprintf("dev (%s)", setting.Value[:7])
 		}
 	}
 
-	version = unknown
-	return version
+	return "dev"
 }
 
-func currentVersion() string {
-	return version
+func short(s string) string {
+	if len(s) > 7 {
+		return s[:7]
+	}
+	return s
 }
