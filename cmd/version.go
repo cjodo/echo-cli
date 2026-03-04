@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os/exec"
 	"runtime/debug"
 	"strings"
 
@@ -11,6 +12,9 @@ import (
 var (
 	// These are overridden by goreleaser via ldflags.
 	Version = "dev"
+
+	// For testing purposes
+	skipGitVersion bool
 )
 
 var versionCmd = &cobra.Command{
@@ -34,6 +38,13 @@ func resolveVersion() string {
 		return strings.TrimPrefix(Version, "v")
 	}
 
+	// Try to get version from git tags for dev builds (skip in tests)
+	if !skipGitVersion {
+		if version := getGitVersion(); version != "" {
+			return version
+		}
+	}
+
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
 		return "dev"
@@ -46,6 +57,19 @@ func resolveVersion() string {
 	}
 
 	return "dev"
+}
+
+// getGitVersion tries to get the most recent git tag for dev builds.
+func getGitVersion() string {
+	out, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
+	if err != nil {
+		return ""
+	}
+	version := strings.TrimSpace(string(out))
+	if version == "" || strings.HasPrefix(version, "v") {
+		return strings.TrimPrefix(version, "v")
+	}
+	return version
 }
 
 func short(s string) string {

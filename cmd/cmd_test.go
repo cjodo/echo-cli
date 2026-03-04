@@ -9,7 +9,12 @@ import (
 
 func TestResolveVersion(t *testing.T) {
 	oldVersion := Version
-	defer func() { Version = oldVersion }()
+	oldSkipGit := skipGitVersion
+	skipGitVersion = true
+	defer func() {
+		Version = oldVersion
+		skipGitVersion = oldSkipGit
+	}()
 
 	tests := []struct {
 		name    string
@@ -46,8 +51,13 @@ func TestResolveVersion(t *testing.T) {
 
 func TestVersionCmdOutput(t *testing.T) {
 	oldVersion := Version
+	oldSkipGit := skipGitVersion
 	Version = "1.2.3"
-	defer func() { Version = oldVersion }()
+	skipGitVersion = true
+	defer func() {
+		Version = oldVersion
+		skipGitVersion = oldSkipGit
+	}()
 
 	buf := new(bytes.Buffer)
 	c := &cobra.Command{}
@@ -63,8 +73,13 @@ func TestVersionCmdOutput(t *testing.T) {
 
 func TestVersionCmdDevOutput(t *testing.T) {
 	oldVersion := Version
+	oldSkipGit := skipGitVersion
 	Version = "dev"
-	defer func() { Version = oldVersion }()
+	skipGitVersion = true
+	defer func() {
+		Version = oldVersion
+		skipGitVersion = oldSkipGit
+	}()
 
 	buf := new(bytes.Buffer)
 	c := &cobra.Command{}
