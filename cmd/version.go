@@ -15,8 +15,6 @@ var (
 	date    = "unknown"
 )
 
-const unknown = "unknown"
-
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the current CLI version",
@@ -28,9 +26,6 @@ var versionCmd = &cobra.Command{
 // fullVersion returns the formatted version string shown to users.
 func fullVersion() string {
 	v := resolveVersion()
-	if v == unknown {
-		return unknown
-	}
 
 	// If this is a release build (commit injected)
 	if commit != "" && commit != "none" {
