@@ -6,17 +6,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func rootRunE(cmd *cobra.Command, _ []string) error {
-	return nil
-}
-
 var rootCmd = &cobra.Command{
 	Use:               "echo-cli",
 	Long:              "",
-	RunE:              rootRunE,
 	PersistentPreRunE: preRunE,
-	SilenceErrors:     true,
-	SilenceUsage:      true,
 }
 
 func init() {
@@ -30,7 +23,7 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		// TODO: Handle properly
+		fmt.Println(rootCmd.Help())
 	}
 }
 

@@ -72,7 +72,7 @@ func downloadDocs(toPath string) error {
 		c = nil
 	}
 
-	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c, internal.Options{Verbose: verbose}); err != nil {
+	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c, internal.FetchOptions{Verbose: verbose}); err != nil {
 		return err
 	}
 

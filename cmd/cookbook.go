@@ -59,35 +59,40 @@ var cookbookGetCmd = &cobra.Command{
 }
 
 func cookbookGetRunE(cmd *cobra.Command, args []string) error {
-	recipe := args[0]
-	url := fmt.Sprintf(apiCookbookRepo+"/%s", recipe)
-	outDir := filepath.Join(".", recipe)
+    recipe := args[0]
+    apiURL := fmt.Sprintf("%s/%s", apiCookbookRepo, recipe) // per-recipe API URL
+    outDir := filepath.Join(".", recipe)
 
-	c := cookbookCache
-	if refreshCache {
-		c = nil
-	}
+    // Use cache if available, unless refresh requested
+    c := cookbookCache
+    if refreshCache {
+        c = nil
+    }
 
-	if err := internal.DownloadFromRepoWithCache(url, outDir, c, internal.Options{Verbose: cookbookVerbose}); err != nil {
-		return err
-	}
+    if cookbookVerbose {
+        fmt.Println("Downloading recipe:", recipe)
+    }
 
-	if err := os.Chdir(outDir); err != nil {
-		return err
-	}
+    // Use the original API-based recursive downloader
+    if err := internal.DownloadFromRepoWithCache(apiURL, outDir, c, internal.FetchOptions{Verbose: cookbookVerbose}); err != nil {
+        return fmt.Errorf("failed to download recipe '%s': %w", recipe, err)
+    }
 
-	if err := exec.Command("go", "mod", "init", recipe).Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: go mod init failed: %v\n", err)
-	}
+    // Initialize Go module in the recipe folder
+    if err := os.Chdir(outDir); err != nil {
+        return err
+    }
+    if err := exec.Command("go", "mod", "init", recipe).Run(); err != nil {
+        fmt.Fprintf(os.Stderr, "warning: go mod init failed: %v\n", err)
+    }
+    if err := os.Chdir(".."); err != nil {
+        return err
+    }
 
-	if err := os.Chdir(".."); err != nil {
-		return err
-	}
-
-	fmt.Printf("Recipe '%s' pulled into %s\n", recipe, outDir)
-	fmt.Println("---Next Steps---")
-	fmt.Printf("cd %s && go mod tidy\n\n", recipe)
-	return nil
+    fmt.Printf("✅ Recipe '%s' pulled into %s\n", recipe, outDir)
+    fmt.Println("---Next Steps---")
+    fmt.Printf("cd %s && go mod tidy\n\n", recipe)
+    return nil
 }
 
 func cookbookListRunE(cmd *cobra.Command, args []string) error {
