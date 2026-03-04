@@ -72,6 +72,11 @@ func checkForUpgrade(current string) (bool, string) {
 
 	latest, err := getLatestVersion()
 	if err != nil {
+		fmt.Println("Could not check latest version:", err)
+		return false, ""
+	}
+
+	if latest == "" {
 		return false, ""
 	}
 
