@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 )
 
@@ -11,6 +13,8 @@ var rootCmd = &cobra.Command{
 	Long:              "",
 	PersistentPreRunE: preRunE,
 }
+
+
 
 func init() {
 	rootCmd.AddCommand(
@@ -22,7 +26,11 @@ func init() {
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := fang.Execute(
+		context.Background(),
+		rootCmd,
+		fang.WithColorSchemeFunc(ApplyColorScheme()),
+		); err != nil {
 		fmt.Println(rootCmd.Help())
 	}
 }
@@ -47,3 +55,4 @@ func preRunE(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
+
