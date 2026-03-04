@@ -19,9 +19,9 @@ type githubRelease struct {
 }
 
 var upgradeCmd = &cobra.Command{
-	Use: "upgrade",
+	Use:   "upgrade",
 	Short: "Upgrade echo-cli to latest release",
-	RunE: runUpgradeE,
+	RunE:  runUpgradeE,
 }
 
 func runUpgradeE(cmd *cobra.Command, args []string) error {
@@ -49,7 +49,7 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 		"github.com/cjodo/echo-cli@latest",
 	)
 
-	installCmd.Stderr = cmd.OutOrStderr() 
+	installCmd.Stdout = cmd.OutOrStdout()
 	installCmd.Stderr = cmd.ErrOrStderr()
 
 	if err := installCmd.Run(); err != nil {
@@ -61,7 +61,6 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
 
 // checkForUpgrade returns:
 //   - false if dev build
