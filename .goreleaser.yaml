@@ -23,10 +23,7 @@ builds:
       - darwin
     ldflags:
       - -s -w
-      - -X github.com/cjodo/echo-cli/cmd.Version={{.Version}}
-      - -X github.com/cjodo/echo-cli/cmd.Commit={{.ShortCommit}}
-      - -X github.com/cjodo/echo-cli/cmd.Date={{.Date}}
-
+      - -X github.com/cjodo/echo-cli/cmd.Version=$(git describe)
 archives:
   - formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.

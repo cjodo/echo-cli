@@ -11,8 +11,6 @@ import (
 var (
 	// These are overridden by goreleaser via ldflags.
 	Version = "dev"
-	Commit  = "none"
-	Date    = "unknown"
 )
 
 var versionCmd = &cobra.Command{
@@ -26,12 +24,6 @@ var versionCmd = &cobra.Command{
 // fullVersion returns the formatted version string shown to users.
 func fullVersion() string {
 	v := resolveVersion()
-
-	// If this is a release build (commit injected)
-	if Commit != "" && Commit != "none" {
-		return fmt.Sprintf("%s (%s, built %s)", v, short(Commit), Date)
-	}
-
 	return v
 }
 
