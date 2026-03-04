@@ -24,7 +24,7 @@ func init() {
 		docsCmd,
 		versionCmd,
 		upgradeCmd,
-		)
+	)
 }
 
 func Execute() {
@@ -48,7 +48,7 @@ func preRunE(cmd *cobra.Command, args []string) error {
 	if upgradeAvailable {
 		fmt.Printf("\n🚀 A new version of echo-cli is available: %s → %s\n", current, latest)
 		fmt.Println("Run:")
-		fmt.Println("  go install github.com/cjodo/echo-cli@latest\n")
+		fmt.Println("  go install github.com/cjodo/echo-cli@latest")
 	}
 
 	return nil
