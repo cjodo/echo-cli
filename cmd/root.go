@@ -7,7 +7,7 @@ import (
 )
 
 func rootRunE(cmd *cobra.Command, _ []string) error {
-	return fmt.Errorf("")
+	return nil
 }
 
 var rootCmd = &cobra.Command{
@@ -16,6 +16,7 @@ var rootCmd = &cobra.Command{
 	RunE:              rootRunE,
 	PersistentPreRunE: preRunE,
 	SilenceErrors:     true,
+	SilenceUsage:      true,
 }
 
 func init() {
