@@ -39,13 +39,13 @@ func preRunE(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	current := resolveVersion()
+	current := Version()
 
 	if current == "dev" || len(current) == 0 {
 		return nil
 	}
 
-	upgradeAvailable, latest := checkForUpgrade()
+	upgradeAvailable, latest := checkForUpgrade(current)
 	if upgradeAvailable {
 		fmt.Printf("\n🚀 A new version of echo-cli is available: %s → %s\n", current, latest)
 		fmt.Println("Run:")

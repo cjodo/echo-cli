@@ -25,9 +25,8 @@ var upgradeCmd = &cobra.Command{
 }
 
 func runUpgradeE(cmd *cobra.Command, args []string) error {
-	current := resolveVersion()
+	current := Version()
 
-	// Don't upgrade dev builds
 	if current == "dev" {
 		fmt.Println("Development build detected. Upgrade skipped.")
 		return nil
@@ -35,7 +34,7 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("Checking for latest version...")
 
-	upgradeAvailable, latest := checkForUpgrade()
+	upgradeAvailable, latest := checkForUpgrade(current)
 	if !upgradeAvailable {
 		fmt.Println("You are already on the latest version.")
 		return nil
@@ -66,10 +65,8 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 //   - false if dev build
 //   - false if error
 //   - true if a newer version exists
-func checkForUpgrade() (bool, string) {
-	current := resolveVersion()
-
-	if current == "dev" || strings.HasPrefix(current, "dev") {
+func checkForUpgrade(current string) (bool, string) {
+	if current == "dev" {
 		return false, ""
 	}
 
