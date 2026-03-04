@@ -11,7 +11,7 @@ import (
 
 var (
 	// These are overridden by goreleaser via ldflags.
-	Version = "dev"
+	Version string
 
 	// For testing purposes
 	skipGitVersion bool
