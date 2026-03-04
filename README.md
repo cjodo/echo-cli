@@ -32,6 +32,7 @@ echo-cli cookbook get <recipe-name>        # Download a recipe to current direct
 
 Flags:
 - `--refresh` - Force refresh cache, bypasses cached API responses and downloaded files
+- `-v, --verbose` - Enable verbose output
 
 Examples:
 
@@ -87,6 +88,7 @@ echo-cli docs --refresh    # Force refresh docs cache
 Flags:
 - `-p, --port string`   Port to serve docs on (default "8080")
 - `--refresh`           Force refresh cache, bypasses cached docs
+- `-v, --verbose`       Enable verbose output
 
 Examples:
 
