@@ -80,13 +80,13 @@ Available recipes:
 Serve the Echo framework documentation locally for offline access.
 
 ```bash
-echo-cli docs              # Serve docs on default port 8080
+echo-cli docs              # Serve docs on default port 8000
 echo-cli docs -p 3000      # Serve docs on port 3000
 echo-cli docs --refresh    # Force refresh docs cache
 ```
 
 Flags:
-- `-p, --port string`   Port to serve docs on (default "8080")
+- `-p, --port string`   Port to serve docs on (default "8000")
 - `--refresh`           Force refresh cache, bypasses cached docs
 - `-v, --verbose`       Enable verbose output
 

@@ -35,7 +35,7 @@ var docsCmd = &cobra.Command{
 
 func init() {
 	docsCmd.Flags().BoolVar(&docsRefreshCache, "refresh", false, "Force refresh cache")
-	docsCmd.Flags().StringVarP(&docsPort, "port", "p", "8080", "Port to serve docs on")
+	docsCmd.Flags().StringVarP(&docsPort, "port", "p", "8000", "Port to serve docs on")
 	docsCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 }
 
