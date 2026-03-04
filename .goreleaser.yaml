@@ -10,7 +10,6 @@ version: 2
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
     - go generate ./...
     - ./scripts/completions.sh
@@ -23,10 +22,10 @@ builds:
       - windows
       - darwin
     ldflags:
-       - -s -w
-       - -X github.com/cjodo/echo-cli/cmd.version={{.Version}}
-       - -X github.com/cjodo/echo-cli/cmd.commit={{.Commit}}
-       - -X github.com/cjodo/echo-cli/cmd.date={{.Date}}
+      - -s -w
+      - -X github.com/cjodo/echo-cli/cmd.Version={{.Version}}
+      - -X github.com/cjodo/echo-cli/cmd.Commit={{.ShortCommit}}
+      - -X github.com/cjodo/echo-cli/cmd.Date={{.Date}}
 
 archives:
   - formats: [tar.gz]

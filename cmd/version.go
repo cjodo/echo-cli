@@ -10,9 +10,9 @@ import (
 
 var (
 	// These are overridden by goreleaser via ldflags.
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
+	Version = "dev"
+	Commit  = "none"
+	Date    = "unknown"
 )
 
 var versionCmd = &cobra.Command{
@@ -28,8 +28,8 @@ func fullVersion() string {
 	v := resolveVersion()
 
 	// If this is a release build (commit injected)
-	if commit != "" && commit != "none" {
-		return fmt.Sprintf("%s (%s, built %s)", v, short(commit), date)
+	if Commit != "" && Commit != "none" {
+		return fmt.Sprintf("%s (%s, built %s)", v, short(Commit), Date)
 	}
 
 	return v
@@ -38,8 +38,8 @@ func fullVersion() string {
 // resolveVersion determines the appropriate version string.
 func resolveVersion() string {
 	// If GoReleaser injected a version, prefer it.
-	if version != "" && version != "dev" {
-		return strings.TrimPrefix(version, "v")
+	if Version != "" && Version != "dev" {
+		return strings.TrimPrefix(Version, "v")
 	}
 
 	buildInfo, ok := debug.ReadBuildInfo()
