@@ -54,7 +54,9 @@ func docsRunE(cmd *cobra.Command, args []string) error {
 		} else {
 			fmt.Println("Downloading docs for offline use...")
 		}
+
 		if err := downloadDocs(docsPath); err != nil {
+			fmt.Println(err)
 			return err
 		}
 		fmt.Println("docs cache ready for offline use")
@@ -72,7 +74,12 @@ func downloadDocs(toPath string) error {
 		c = nil
 	}
 
-	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c, internal.FetchOptions{Verbose: verbose}); err != nil {
+	opts := internal.FetchOptions{
+		Verbose: verbose,
+		UseZIP: true,
+	}
+
+	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c, opts); err != nil {
 		return err
 	}
 
