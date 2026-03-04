@@ -19,7 +19,7 @@ var versionCmd = &cobra.Command{
 	Short: "Print the current CLI version",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Always show the full version
-		fmt.Println("Version:", FullVersion())
+		fmt.Println(FullVersion())
 
 		// If this is a dev build, optionally show the latest release
 		if Version() == "dev" {
