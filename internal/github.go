@@ -20,13 +20,17 @@ type GithubContent struct {
 	URL         string `json:"url"`
 }
 
-// DownloadFromRepo downloads all files from a GitHub Contents API URL into outDir
-// without including the top-level "cookbook" folder.
-func DownloadFromRepo(apiURL, outDir string) error {
-	return DownloadFromRepoWithCache(apiURL, outDir, nil)
+type Options struct {
+	Verbose bool
 }
 
-func DownloadFromRepoWithCache(apiURL, outDir string, c *cache.Cache) error {
+// DownloadFromRepo downloads all files from a GitHub Contents API URL into outDir
+// without including the top-level "cookbook" folder.
+func DownloadFromRepo(apiURL, outDir string, opts Options) error {
+	return DownloadFromRepoWithCache(apiURL, outDir, nil, Options{ Verbose: opts.Verbose })
+}
+
+func DownloadFromRepoWithCache(apiURL, outDir string, c *cache.Cache, opts Options) error {
 	idx := strings.LastIndex(apiURL, "/contents")
 	if idx == -1 {
 		return fmt.Errorf("invalid GitHub contents API URL: %s", apiURL)
@@ -36,10 +40,10 @@ func DownloadFromRepoWithCache(apiURL, outDir string, c *cache.Cache) error {
 		basePath = "."
 	}
 
-	return downloadFromRepoRecursive(apiURL, outDir, basePath, c)
+	return downloadFromRepoRecursive(apiURL, outDir, basePath, c, opts.Verbose)
 }
 
-func downloadFromRepoRecursive(apiURL, outDir, basePath string, c *cache.Cache) error {
+func downloadFromRepoRecursive(apiURL, outDir, basePath string, c *cache.Cache, verbose bool) error {
 	var body []byte
 	var err error
 
@@ -126,11 +130,13 @@ func downloadFromRepoRecursive(apiURL, outDir, basePath string, c *cache.Cache) 
 			if err := os.WriteFile(outPath, data, 0644); err != nil {
 				return err
 			}
-
-			fmt.Println("Downloaded:", outPath)
+			
+			if verbose {
+				fmt.Println("Downloaded:", outPath)
+			}
 
 		case "dir":
-			if err := downloadFromRepoRecursive(item.URL, outDir, basePath, c); err != nil {
+			if err := downloadFromRepoRecursive(item.URL, outDir, basePath, c, verbose); err != nil {
 				return err
 			}
 		}

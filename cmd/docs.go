@@ -16,6 +16,7 @@ var (
 	docsCache             *cache.Cache
 	docsRefreshCache      bool
 	docsPort              string
+	verbose               bool
 )
 
 func init() {
@@ -35,6 +36,7 @@ var docsCmd = &cobra.Command{
 func init() {
 	docsCmd.Flags().BoolVar(&docsRefreshCache, "refresh", false, "Force refresh cache")
 	docsCmd.Flags().StringVarP(&docsPort, "port", "p", "8080", "Port to serve docs on")
+	docsCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
 }
 
 func docsRunE(cmd *cobra.Command, args []string) error {
@@ -70,7 +72,7 @@ func downloadDocs(toPath string) error {
 		c = nil
 	}
 
-	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c); err != nil {
+	if err := internal.DownloadFromRepoWithCache(staticContentRepoBase, toPath, c, internal.Options{Verbose: verbose}); err != nil {
 		return err
 	}
 

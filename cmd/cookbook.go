@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	cookbookCache *cache.Cache
-	refreshCache  bool
+	cookbookCache   *cache.Cache
+	refreshCache    bool
+	cookbookVerbose bool
 )
 
 func init() {
@@ -24,7 +25,9 @@ func init() {
 	}
 
 	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
+	cookbookGetCmd.Flags().BoolVarP(&cookbookVerbose, "verbose", "v", false, "Enable verbose output")
 	cookbookListCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
+	cookbookListCmd.Flags().BoolVarP(&cookbookVerbose, "verbose", "v", false, "Enable verbose output")
 }
 
 type GithubContent struct {
@@ -65,7 +68,7 @@ func cookbookGetRunE(cmd *cobra.Command, args []string) error {
 		c = nil
 	}
 
-	if err := internal.DownloadFromRepoWithCache(url, outDir, c); err != nil {
+	if err := internal.DownloadFromRepoWithCache(url, outDir, c, internal.Options{Verbose: cookbookVerbose}); err != nil {
 		return err
 	}
 
