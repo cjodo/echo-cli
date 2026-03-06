@@ -40,7 +40,7 @@ func Version() string {
 
 // LatestRelease returns the latest GitHub release tag (0.1.7)
 func LatestRelease() (string, error) {
-	client := http.Client{Timeout: 2 * time.Second}
+	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get(latestReleaseURL)
 	if err != nil {
 		return "", err
