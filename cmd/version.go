@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const latestReleaseURL = "https://api.github.com/repos/cjodo/echo-cli/releases/latest"
+var latestReleaseURL = "https://api.github.com/repos/cjodo/echo-cli/releases/latest"
 
 // versionCmd prints the current CLI version.
 var versionCmd = &cobra.Command{
@@ -27,6 +27,7 @@ var versionCmd = &cobra.Command{
 		}
 	},
 }
+
 // Version returns the current CLI version.
 // Tagged builds return the tag dev builds return "dev".
 func Version() string {

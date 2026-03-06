@@ -4,29 +4,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/spf13/cobra"
 )
 
-const latestVersionURL = "https://api.github.com/repos/cjodo/echo-cli/releases/latest"
-
+// githubRelease represents a GitHub release
 type githubRelease struct {
 	TagName string `json:"tag_name"`
 }
 
 var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
-	Short: "Upgrade echo-cli to latest release",
-	RunE:  runUpgradeE,
+	Short: "Upgrade echo-cli to the latest release or Go module version",
+	RunE:  runUpgrade,
 }
 
-func runUpgradeE(cmd *cobra.Command, args []string) error {
+func runUpgrade(cmd *cobra.Command, args []string) error {
 	current := Version()
-
 	if current == "dev" {
 		fmt.Println("Development build detected. Upgrade skipped.")
 		return nil
@@ -34,25 +33,35 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("Checking for latest version...")
 
-	upgradeAvailable, latest := checkForUpgrade(current)
-	if !upgradeAvailable {
-		fmt.Println("You are already on the latest version.")
-		return nil
+	// Try to get latest GitHub release
+	latest, err := getLatestReleaseTag()
+	if err != nil {
+		fmt.Println("⚠ Could not fetch GitHub release:", err)
+		fmt.Println("Falling back to installing latest Go module version...")
+		latest = "latest"
 	}
 
-	fmt.Printf("Upgrading echo-cli from %s → %s...\n\n", current, latest)
+	upgradeMsg := latest
+	if latest != "latest" {
+		upgradeMsg = fmt.Sprintf("v%s", latest)
+	}
 
-	installCmd := exec.Command(
-		"go",
-		"install",
-		"github.com/cjodo/echo-cli@latest",
-	)
+	fmt.Printf("Upgrading echo-cli from %s → %s...\n\n", current, upgradeMsg)
 
+	installCmd := exec.Command("go", "install", "-mod=mod", fmt.Sprintf("github.com/cjodo/echo-cli@%s", latest))
+	installCmd.Dir = "/tmp"
 	installCmd.Stdout = cmd.OutOrStdout()
 	installCmd.Stderr = cmd.ErrOrStderr()
+	installCmd.Env = append(os.Environ(), "GO111MODULE=on")
 
 	if err := installCmd.Run(); err != nil {
 		return fmt.Errorf("upgrade failed: %w", err)
+	}
+
+	// Check if GOBIN/bin is in PATH
+	binPath := filepath.Dir(os.Args[0])
+	if !strings.Contains(os.Getenv("PATH"), binPath) {
+		fmt.Printf("\n⚠ WARNING: %s may not be in your PATH. Add it to run the new version.\n", binPath)
 	}
 
 	fmt.Println("\n✅ Upgrade complete.")
@@ -61,61 +70,32 @@ func runUpgradeE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// checkForUpgrade returns:
-//   - false if dev build
-//   - false if error
-//   - true if a newer version exists
-func checkForUpgrade(current string) (bool, string) {
-	if current == "dev" {
-		return false, ""
-	}
-
-	latest, err := getLatestVersion()
-	if err != nil {
-		fmt.Println("Could not check latest version:", err)
-		return false, ""
-	}
-
-	if latest == "" {
-		return false, ""
-	}
-
-	if isOutdated(current, latest) {
-		return true, latest
-	}
-
-	return false, ""
-}
-
-func getLatestVersion() (string, error) {
-	client := http.Client{
-		Timeout: 2 * time.Second,
-	}
-
-	resp, err := client.Get(latestVersionURL)
+// getLatestReleaseTag fetches the latest GitHub release tag
+func getLatestReleaseTag() (string, error) {
+	client := http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(latestReleaseURL)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("unexpected status %d", resp.StatusCode)
+	}
 
 	var release githubRelease
 	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
 		return "", err
 	}
 
-	return strings.TrimPrefix(release.TagName, "v"), nil
+	tag := strings.TrimPrefix(release.TagName, "v")
+	if tag == "" {
+		return "", fmt.Errorf("empty release tag")
+	}
+
+	return tag, nil
 }
 
-func isOutdated(current, latest string) bool {
-	cv, err := semver.NewVersion(current)
-	if err != nil {
-		return false
-	}
-
-	lv, err := semver.NewVersion(latest)
-	if err != nil {
-		return false
-	}
-
-	return lv.GreaterThan(cv)
+func checkForUpgrade(current string) (bool, string) {
+	return false, ""
 }
