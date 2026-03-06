@@ -31,7 +31,6 @@ echo-cli cookbook get <recipe-name>        # Download a recipe to current direct
 ```
 
 Flags:
-- `--refresh` - Force refresh cache, bypasses cached API responses and downloaded files
 - `-v, --verbose` - Enable verbose output
 
 Examples:
