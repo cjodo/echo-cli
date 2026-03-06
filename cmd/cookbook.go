@@ -5,39 +5,21 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
-	"github.com/cjodo/echo-cli/internal"
-	"github.com/cjodo/echo-cli/internal/cache"
 	"github.com/spf13/cobra"
 )
 
 var (
-	cookbookCache   *cache.Cache
-	refreshCache    bool
 	cookbookVerbose bool
 )
 
 func init() {
-	var err error
-	cookbookCache, err = cache.New()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "warning: cache init failed: %v\n", err)
-	}
-
-	cookbookGetCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
 	cookbookGetCmd.Flags().BoolVarP(&cookbookVerbose, "verbose", "v", false, "Enable verbose output")
-	cookbookListCmd.Flags().BoolVar(&refreshCache, "refresh", false, "Force refresh cache")
 	cookbookListCmd.Flags().BoolVarP(&cookbookVerbose, "verbose", "v", false, "Enable verbose output")
-}
 
-type GithubContent struct {
-	Name        string `json:"name"`
-	Path        string `json:"path"`
-	Type        string `json:"type"`
-	DownloadURL string `json:"download_url"`
+	cookbookCmd.AddCommand(cookbookGetCmd, cookbookListCmd)
 }
-
-const apiCookbookRepo = "https://api.github.com/repos/labstack/echox/contents/cookbook"
 
 var cookbookCmd = &cobra.Command{
 	Use:   "cookbook",
@@ -48,7 +30,16 @@ var cookbookCmd = &cobra.Command{
 var cookbookListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available cookbook recipies",
-	RunE:  cookbookListRunE,
+	RunE:  func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Available recipes: ")
+
+		for _, recipe := range recipes {
+			fmt.Println(recipe)
+		}
+
+		fmt.Println("For more info visit: https://echo.labstack.com/docs/category/cookbook")
+		return nil
+	},
 }
 
 var cookbookGetCmd = &cobra.Command{
@@ -59,62 +50,67 @@ var cookbookGetCmd = &cobra.Command{
 }
 
 func cookbookGetRunE(cmd *cobra.Command, args []string) error {
-    recipe := args[0]
-    apiURL := fmt.Sprintf("%s/%s", apiCookbookRepo, recipe) // per-recipe API URL
-    outDir := filepath.Join(".", recipe)
+	start := time.Now()
+	recipe := args[0]
 
-    // Use cache if available, unless refresh requested
-    c := cookbookCache
-    if refreshCache {
-        c = nil
-    }
-
-    if cookbookVerbose {
-        fmt.Println("Downloading recipe:", recipe)
-    }
-
-    // Use the original API-based recursive downloader
-    if err := internal.DownloadFromRepoWithCache(apiURL, outDir, c, internal.FetchOptions{Verbose: cookbookVerbose}); err != nil {
-        return fmt.Errorf("failed to download recipe '%s': %w", recipe, err)
-    }
-
-    // Initialize Go module in the recipe folder
-    if err := os.Chdir(outDir); err != nil {
-        return err
-    }
-    if err := exec.Command("go", "mod", "init", recipe).Run(); err != nil {
-        fmt.Fprintf(os.Stderr, "warning: go mod init failed: %v\n", err)
-    }
-    if err := os.Chdir(".."); err != nil {
-        return err
-    }
-
-    fmt.Printf("✅ Recipe '%s' pulled into %s\n", recipe, outDir)
-    fmt.Println("---Next Steps---")
-    fmt.Printf("cd %s && go mod tidy\n\n", recipe)
-    return nil
-}
-
-func cookbookListRunE(cmd *cobra.Command, args []string) error {
-	c := cookbookCache
-	if refreshCache {
-		c = nil
-	}
-
-	contents, err := internal.ListDirsInRepoWithCache(apiCookbookRepo, c)
+	git, err := exec.LookPath("git")
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Available recipies:")
-	for _, c := range *contents {
-		if c.Type == "dir" {
-			fmt.Println(" -", c.Name)
-		}
+	outDir := filepath.Join(".", recipe)
+
+	if cookbookVerbose {
+		fmt.Println("Downloading recipe:", recipe)
 	}
+
+	repoUrl := fmt.Sprintf("git@github.com:recipes-echo/%s.git", recipe)
+	if err := exec.Command(git, "clone", repoUrl).Run(); err != nil {
+		return err
+	}
+
+	// Initialize Go module in the recipe folder
+	if err := os.Chdir(outDir); err != nil {
+		return err
+	}
+	if err := exec.Command("go", "mod", "init", recipe).Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: go mod init failed: %v\n", err)
+	}
+	if err := os.Chdir(".."); err != nil {
+		return err
+	}
+
+	elapsed := time.Since(start)
+
+	fmt.Printf("✅ Recipe '%s' pulled into %s\n", recipe, outDir)
+	fmt.Println("---Next Steps---")
+	fmt.Printf("cd %s && go mod tidy\n\n", recipe)
+	fmt.Printf("took: %s\n", elapsed.Round(time.Millisecond))
 	return nil
 }
 
-func init() {
-	cookbookCmd.AddCommand(cookbookListCmd, cookbookGetCmd)
+var recipes = []string{
+    "websocket",
+    "timeout",
+    "subdomain",
+    "streaming-response",
+    "sse",
+    "reverse-proxy",
+    "prometheus",
+    "middleware",
+    "load-balancing",
+    "jwt",
+    "jsonp",
+    "http2-server-push",
+    "http2",
+    "hello-world",
+    "graceful-shutdown",
+    "file-upload",
+    "file-download",
+    "embed",
+    "csrf",
+    "crud",
+    "cors",
+    "casbin",
+    "auto-tls",
 }
