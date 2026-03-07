@@ -26,10 +26,10 @@ var upgradeCmd = &cobra.Command{
 
 func runUpgrade(cmd *cobra.Command, args []string) error {
 	current := Version()
-	if current == "dev" {
-		fmt.Println("Development build detected. Upgrade skipped.")
-		return nil
-	}
+	// if current == "dev" {
+	// 	fmt.Println("Development build detected. Upgrade skipped.")
+	// 	return nil
+	// }
 
 	fmt.Println("Checking for latest version...")
 
@@ -48,8 +48,7 @@ func runUpgrade(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Upgrading echo-cli from %s → %s...\n\n", current, upgradeMsg)
 
-	installCmd := exec.Command("go", "install", "-mod=mod", fmt.Sprintf("github.com/cjodo/echo-cli@%s", latest))
-	installCmd.Dir = "/tmp"
+	installCmd := exec.Command("go", "install", "-mod=mod", fmt.Sprintf("github.com/cjodo/echo-cli@v%s", latest))
 	installCmd.Stdout = cmd.OutOrStdout()
 	installCmd.Stderr = cmd.ErrOrStderr()
 	installCmd.Env = append(os.Environ(), "GO111MODULE=on")
